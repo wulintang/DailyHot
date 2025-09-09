@@ -13,13 +13,24 @@ jobs:
         with:
           node-version: 18
 
+      # 关键步骤：生成或修改 .env 文件，写入环境变量
+      - name: Create/Update .env file
+        run: |
+          # 写入 .env 文件（如果文件已存在，会覆盖或追加）
+          echo "# 全局 API 地址" > .env
+          echo "VITE_GLOBAL_API=${{ secrets.GLOBAL_API }}" >> .env  # 从 secrets 读取
+          echo "" >> .env
+          echo "# ICP 备案号" >> .env
+          echo "VITE_ICP=\"\"" >> .env
+          echo "" >> .env
+          echo "# 全局目录" >> .env
+          echo "VITE_DIR=\"/\"" >> .env
+
+          # 可选：查看 .env 内容（确认是否正确写入，注意不要泄露敏感信息）
+          cat .env
+
       - name: Install dependencies
         run: npm install
 
       - name: Build project
-        run: npm run build  # 假设你的构建命令是 npm run build
-        env:
-          # 关键：将 GitHub 的 Secrets/Variables 映射为 Vite 环境变量
-          VITE_GLOBAL_API: ${{ secrets.GLOBAL_API }}  # 若用的是 secret
-          # 或
-          VITE_GLOBAL_API: ${{ vars.GLOBAL_API }}     # 若用的是 variable
+        run: npm run build  # 此时项目读取 .env 会获得注入的值
